@@ -115,16 +115,19 @@ elif page == "Triển khai mô hình":
         input_data = np.array([[age_input, spending_num]])
         input_scaled = scaler.transform(input_data)
         
+        # Lấy ID cụm (0, 1 hoặc 2)
         cluster_id = kmeans.predict(input_scaled)[0]
-        st.success(f"### Khách hàng này thuộc: Nhóm {cluster_id}")
         
-        # Diễn giải
+        # Ánh xạ ID sang câu văn miêu tả chi tiết
         if cluster_id == 0:
-            st.write("🎯 **Nhóm 0:** Khách hàng trẻ, chi tiêu thấp. Xe giá rẻ, trả góp.")
+            description = "Khách hàng trẻ, chi tiêu thấp. Xe giá rẻ, trả góp."
         elif cluster_id == 1:
-            st.write("🎯 **Nhóm 1:** Khách hàng VIP, chi tiêu cao. Xe sang, sự kiện độc quyền.")
+            description = "Khách hàng VIP, chi tiêu cao. Xe sang, sự kiện độc quyền."
         else:
-            st.write("🎯 **Nhóm 2:** Khách hàng trung niên, thực dụng. Xe gia đình bền bỉ.")
+            description = "Khách hàng trung niên, thực dụng. Xe gia đình bền bỉ."
+            
+        # In thẳng câu miêu tả ra khung màu xanh
+        st.success(f"### Khách hàng này thuộc nhóm: {description}")
 
 elif page == "Đánh giá & Hiệu năng":
     st.title("📈 Đánh giá Hiệu năng Mô hình")

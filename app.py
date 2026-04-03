@@ -22,7 +22,7 @@ def load_data():
     # Lưu ý: Kiểm tra chính xác tên thư mục là 'Data' hay 'data' trên GitHub của em
     df = pd.read_csv('Data/Train.csv') 
     data = df[['Age', 'Spending_Score']].dropna().copy()
-   score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
+    score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
     data['Spending_Score_Num'] = data['Spending_Score'].map(score_mapping)
     return df, data
 

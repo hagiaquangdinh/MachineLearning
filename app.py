@@ -19,33 +19,51 @@ if not os.path.exists('models'):
 # --- HÀM 1: LOAD DỮ LIỆU ---
 @st.cache_data
 def load_data():
-    # Lưu ý: Kiểm tra chính xác tên thư mục là 'Data' hay 'data' trên GitHub của em
-    df = pd.read_csv('Data/Train.csv') 
-    data = df[['Age', 'Spending_Score']].dropna().copy()
+    df = pd.read_csv('data/Train.csv') 
+    
+    # Lấy thêm các cột mới
+    data = df[['Age', 'Spending_Score', 'Income', 'Gender', 'Profession']].dropna().copy()
+    
+    # 1. Xử lý Spending_Score (như cũ)
     score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
     data['Spending_Score_Num'] = data['Spending_Score'].map(score_mapping)
+    
+    # 2. Xử lý Gender (Giới tính) thành 0 và 1
+    data['Gender_Num'] = data['Gender'].map({'Male': 0, 'Female': 1})
+    
+    # 3. Xử lý Profession (Nghề nghiệp) bằng One-Hot Encoding
+    # pd.get_dummies sẽ biến mỗi nghề nghiệp thành 1 cột riêng biệt (0 hoặc 1)
+    data = pd.get_dummies(data, columns=['Profession'], drop_first=True)
+    
     return df, data
 
 # --- HÀM 2: HUẤN LUYỆN VÀ LƯU MODEL (CHỈ CHẠY KHI THIẾU FILE) ---
 def train_and_save_model(data_processed):
-    st.info("🔄 Đang huấn luyện mô hình lần đầu...")
-    X = data_processed[['Age', 'Spending_Score_Num']]
+    st.info("🔄 Đang huấn luyện mô hình với nhiều tiêu chí...")
     
-    # 1. Chuẩn hóa
+    # Chọn TẤT CẢ các cột số để đưa vào K-Means
+    # Lưu ý: Bỏ qua các cột chữ gốc (như Spending_Score, Gender)
+    feature_columns = [col for col in data_processed.columns if col not in ['Age', 'Spending_Score', 'Gender']]
+    # Ví dụ feature_columns sẽ gồm: Age, Spending_Score_Num, Income, Gender_Num, Profession_Doctor...
+    
+    X = data_processed[feature_columns] # Lưu lại tên các cột để sau này dùng
+    
+    # 1. Chuẩn hóa toàn bộ dữ liệu
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # 2. Huấn luyện K-Means
-    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    # 2. Huấn luyện (Giả sử tăng lên 4 nhóm cho chi tiết hơn)
+    kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
     kmeans.fit(X_scaled)
     
-    # 3. Đóng gói và lưu vào 1 file .pkl duy nhất
+    # 3. ĐÓNG GÓI THÊM TÊN CỘT (Rất quan trọng)
     model_artifacts = {
         'scaler': scaler,
-        'kmeans': kmeans
+        'kmeans': kmeans,
+        'features': X.columns.tolist() # Lưu lại danh sách các cột để lúc dự đoán nhập cho đúng thứ tự
     }
     joblib.dump(model_artifacts, 'models/model.pkl')
-    st.success("✅ Đã lưu mô hình vào models/model.pkl!")
+    st.success("✅ Đã lưu mô hình mới!")
 
 # --- HÀM 3: LOAD MODEL TỪ FILE .PKL ---
 @st.cache_resource
@@ -98,22 +116,53 @@ if page == "Giới thiệu & EDA":
         st.pyplot(fig2)
 
 elif page == "Triển khai mô hình":
-    st.title("⚙️ Triển khai mô hình K-Means")
+    st.title("⚙️ Triển khai mô hình nâng cao")
+    
+    artifacts = joblib.load('models/model.pkl')
+    scaler = artifacts['scaler']
+    kmeans = artifacts['kmeans']
+    expected_features = artifacts['features'] # Danh sách cột mô hình cần
     
     st.subheader("Nhập thông tin khách hàng mới")
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
+    
     with col1:
-        age_input = st.number_input("Nhập Độ tuổi:", min_value=18, max_value=100, value=30)
+        age_input = st.number_input("Độ tuổi:", 18, 100, 30)
+        gender_input = st.selectbox("Giới tính:", ["Male", "Female"])
     with col2:
-        spending_input = st.selectbox("Chọn Mức độ chi tiêu:", ["Low", "Average", "High"])
+        income_input = st.number_input("Thu nhập/năm ($):", 0, 200000, 50000)
+    with col3:
+        spending_input = st.selectbox("Mức chi tiêu:", ["Low", "Average", "High"])
+        profession_input = st.selectbox("Nghề nghiệp:", ["Engineer", "Doctor", "Artist", "Lawyer"]) # Thay bằng các nghề trong data của em
 
     if st.button("Dự đoán Phân khúc", type="primary"):
-        score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
-        spending_num = score_mapping[spending_input]
+        # 1. Tạo một DataFrame giả lập chứa đúng 1 dòng dữ liệu người dùng nhập
+        input_dict = {
+            'Age': age_input,
+            'Income': income_input,
+            'Spending_Score_Num': {'Low': 1, 'Average': 2, 'High': 3}[spending_input],
+            'Gender_Num': 0 if gender_input == 'Male' else 1
+        }
         
-        # CHÚ Ý: Sử dụng 'scaler' đã load từ file, KHÔNG tạo scaler mới
-        input_data = np.array([[age_input, spending_num]])
-        input_scaled = scaler.transform(input_data)
+        # Tạo DataFrame ban đầu
+        input_df = pd.DataFrame([input_dict])
+        
+        # 2. Khớp các cột Profession (One-Hot Encoding thủ công)
+        # Vì lúc train dùng get_dummies, giờ mình phải tự tạo ra các cột 0/1 tương ứng
+        for feature in expected_features:
+            if feature.startswith('Profession_'):
+                prof_name = feature.replace('Profession_', '')
+                input_df[feature] = 1 if profession_input == prof_name else 0
+                
+        # 3. Sắp xếp lại thứ tự cột cho đúng với lúc Train
+        input_df = input_df[expected_features]
+        
+        # 4. Dự đoán
+        input_scaled = scaler.transform(input_df)
+        cluster_id = kmeans.predict(input_scaled)[0]
+        
+        # st.success(f"Khách hàng thuộc Nhóm: {cluster_id}")
+        # Cập nhật lại phần Text miêu tả cho phù hợp với 4 nhóm mới
         
         # Lấy ID cụm (0, 1 hoặc 2)
         cluster_id = kmeans.predict(input_scaled)[0]

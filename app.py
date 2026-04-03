@@ -19,7 +19,7 @@ if not os.path.exists('models'):
 # --- HÀM 1: LOAD DỮ LIỆU ---
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data/Train.csv') 
+    df = pd.read_csv('Data/Train.csv') 
     
     # Lấy thêm các cột mới
     data = df[['Age', 'Spending_Score', 'Income', 'Gender', 'Profession']].dropna().copy()

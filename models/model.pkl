@@ -23,7 +23,6 @@ os.makedirs('models', exist_ok=True)
 
 # Tạo một "chiếc hộp" (dictionary) chứa cả 2 thứ
 model_artifacts = {
-    'scaler': scaler,
     'kmeans': kmeans
 }
 

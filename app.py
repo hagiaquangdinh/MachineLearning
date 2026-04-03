@@ -1,4 +1,3 @@
-# Tên file: app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -6,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 from sklearn.metrics import silhouette_score
+from scikit-learn.preprocessing import StandardScaler
 import os
 
 # Cấu hình trang
@@ -26,10 +26,9 @@ def load_models():
     artifacts = joblib.load('models/model.pkl')
     
     # 2. Lấy từng món ra từ trong hộp
-    scaler = artifacts['scaler']
     kmeans = artifacts['kmeans']
     
-    return scaler, kmeans
+    return kmeans
 
 # Load dữ liệu
 df_raw, df_processed = load_data()
@@ -83,7 +82,7 @@ if page == "Giới thiệu & EDA":
 elif page == "Triển khai mô hình":
     st.title("⚙️ Triển khai mô hình K-Means")
     
-    scaler, kmeans = load_models()
+    kmeans = load_models()
     
     st.subheader("Nhập thông tin khách hàng mới")
     col1, col2 = st.columns(2)
@@ -99,6 +98,7 @@ elif page == "Triển khai mô hình":
         spending_num = score_mapping[spending_input]
         
         input_data = np.array([[age_input, spending_num]])
+        scaler = StandardScaler()
         input_scaled = scaler.transform(input_data)
         
         # Dự đoán

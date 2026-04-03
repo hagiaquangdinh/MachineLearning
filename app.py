@@ -21,18 +21,10 @@ def load_data():
     return df, data
 
 @st.cache_resource
-def load_model_only():
-    # Chỉ load file model.pkl mà em đang có trên GitHub
-    kmeans = joblib.load('models/model.pkl')
-    return kmeans
-
-# Xuống dòng 81 (nơi đang bị lỗi), em thay đoạn gọi hàm thành:
-kmeans = load_model_only()
-
-# Tự tạo lại Scaler ngay trong app từ dữ liệu df_processed
-scaler = StandardScaler()
-X_train = df_processed[['Age', 'Spending_Score_Num']]
-scaler.fit(X_train) # Fit lại scaler
+def load_models():
+    scaler = joblib.load('models/scaler.pkl')
+    kmeans = joblib.load('models/kmeans_model.pkl')
+    return scaler, kmeans
 
 # Load dữ liệu
 df_raw, df_processed = load_data()

@@ -1,8 +1,8 @@
 import pandas as pd
 import joblib
 import os
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
+from scikit-learn.cluster import KMeans
+from scikit-learn.preprocessing import StandardScaler
 
 # 1 & 2. Đọc và tiền xử lý (như cũ)
 df = pd.read_csv('Train.csv')

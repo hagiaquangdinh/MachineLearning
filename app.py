@@ -21,10 +21,18 @@ def load_data():
     return df, data
 
 @st.cache_resource
-def load_models():
-    scaler = joblib.load('models/scaler.pkl')
-    kmeans = joblib.load('models/kmeans_model.pkl')
-    return scaler, kmeans
+def load_model_only():
+    # Chỉ load file model.pkl mà em đang có trên GitHub
+    kmeans = joblib.load('models/model.pkl')
+    return kmeans
+
+# Xuống dòng 81 (nơi đang bị lỗi), em thay đoạn gọi hàm thành:
+kmeans = load_model_only()
+
+# Tự tạo lại Scaler ngay trong app từ dữ liệu df_processed
+scaler = StandardScaler()
+X_train = df_processed[['Age', 'Spending_Score_Num']]
+scaler.fit(X_train) # Fit lại scaler
 
 # Load dữ liệu
 df_raw, df_processed = load_data()
@@ -38,7 +46,7 @@ page = st.sidebar.radio("Cấu trúc ứng dụng",
 # ==========================================
 # TRANG 1: GIỚI THIỆU & KHÁM PHÁ DỮ LIỆU
 # ==========================================
-if page == "Trang 1: Giới thiệu & EDA":
+if page == "Giới thiệu & EDA":
     st.title("📊 Khám phá dữ liệu (EDA)")
     
     # Thông tin bắt buộc
@@ -75,7 +83,7 @@ if page == "Trang 1: Giới thiệu & EDA":
 # ==========================================
 # TRANG 2: TRIỂN KHAI MÔ HÌNH
 # ==========================================
-elif page == "Trang 2: Triển khai mô hình":
+elif page == "Triển khai mô hình":
     st.title("⚙️ Triển khai mô hình K-Means")
     
     scaler, kmeans = load_models()
@@ -117,7 +125,7 @@ elif page == "Trang 2: Triển khai mô hình":
 # ==========================================
 # TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG
 # ==========================================
-elif page == "Trang 3: Đánh giá & Hiệu năng":
+elif page == "Đánh giá & Hiệu năng":
     st.title("📈 Đánh giá Hiệu năng Mô hình")
     
     scaler, kmeans = load_models()

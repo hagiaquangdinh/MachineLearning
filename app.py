@@ -22,8 +22,13 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    scaler = joblib.load('models/scaler.pkl')
-    kmeans = joblib.load('models/kmeans_model.pkl')
+    # 1. Đọc chiếc hộp duy nhất
+    artifacts = joblib.load('models/model.pkl')
+    
+    # 2. Lấy từng món ra từ trong hộp
+    scaler = artifacts['scaler']
+    kmeans = artifacts['kmeans']
+    
     return scaler, kmeans
 
 # Load dữ liệu

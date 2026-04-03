@@ -14,7 +14,7 @@ st.set_page_config(page_title="App Phân Loại Khách Hàng", page_icon="🚗",
 # --- YÊU CẦU KỸ THUẬT: SỬ DỤNG CACHE ---
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data/Train.csv')
+    df = pd.read_csv('Data/Train.csv')
     data = df[['Age', 'Spending_Score']].dropna().copy()
     score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
     data['Spending_Score_Num'] = data['Spending_Score'].map(score_mapping)

@@ -1,4 +1,22 @@
-@@ -19,33 +19,51 @@ if not os.path.exists('models'):
+@@ -1,51 +1,69 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import joblib
+import os
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+# Cấu hình trang
+st.set_page_config(page_title="App Phân Loại Khách Hàng", page_icon="🚗", layout="wide")
+
+# Tạo thư mục models nếu chưa tồn tại
+if not os.path.exists('models'):
+    os.makedirs('models')
+
 # --- HÀM 1: LOAD DỮ LIỆU ---
 @st.cache_data
 def load_data():

@@ -39,9 +39,9 @@ df_raw, df_processed = load_data()
 
 # Điều hướng các trang
 page = st.sidebar.radio("Cấu trúc ứng dụng", 
-                        ["Trang 1: Giới thiệu & EDA", 
-                         "Trang 2: Triển khai mô hình", 
-                         "Trang 3: Đánh giá & Hiệu năng"])
+                        ["Giới thiệu & EDA", 
+                         "Triển khai mô hình", 
+                         "Đánh giá & Hiệu năng"])
 
 # ==========================================
 # TRANG 1: GIỚI THIỆU & KHÁM PHÁ DỮ LIỆU

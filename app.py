@@ -30,6 +30,7 @@ def load_data():
 def train_and_save_model(data_processed):
     st.info("🔄 Đang huấn luyện mô hình lần đầu...")
     X = data_processed[['Age', 'Spending_Score_Num']]
+    
     # 1. Chuẩn hóa
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
@@ -48,26 +49,75 @@ def train_and_save_model(data_processed):
 
 # --- HÀM 3: LOAD MODEL TỪ FILE .PKL ---
 @st.cache_resource
-@st.pyplot(fig2)
+def load_models():
+    model_path = 'models/model.pkl'
+    
+    # Nếu chưa có file thì gọi hàm huấn luyện ngay
+    if not os.path.exists(model_path):
+        _, data_processed = load_data()
+        train_and_save_model(data_processed)
+        
+    # Đọc file .pkl
+    artifacts = joblib.load(model_path)
+    return artifacts['scaler'], artifacts['kmeans']
+
+# ==========================================
+# THỰC THI CHÍNH
+# ==========================================
+df_raw, df_processed = load_data()
+# Lấy scaler và kmeans từ file .pkl (hoặc huấn luyện mới nếu chưa có)
+scaler, kmeans = load_models()
+
+# Điều hướng các trang
+page = st.sidebar.radio("Cấu trúc ứng dụng", 
+                        ["Giới thiệu & EDA", 
+                         "Triển khai mô hình", 
+                         "Đánh giá & Hiệu năng"])
+
+if page == "Giới thiệu & EDA":
+    st.title("📊 Khám phá dữ liệu (EDA)")
+    st.markdown("""
+    **Tên đề tài:** Phân loại khách hàng Ô tô dựa trên Độ tuổi và Mức chi tiêu  
+    **Giá trị thực tiễn:** Tối ưu ngân sách quảng cáo và cá nhân hóa thông điệp bán xe.
+    """)
+    st.divider()
+    st.subheader("1. Một phần dữ liệu thô")
+    st.dataframe(df_raw.head(10))
+
+    st.subheader("2. Biểu đồ phân tích đặc trưng")
+    col1, col2 = st.columns(2)
+    with col1:
+        fig1, ax1 = plt.subplots()
+        sns.histplot(df_raw['Age'], bins=20, kde=True, color='skyblue', ax=ax1)
+        ax1.set_title("Phân phối Độ tuổi (Age)")
+        st.pyplot(fig1)
+    with col2:
+        fig2, ax2 = plt.subplots()
+        sns.countplot(x='Spending_Score', data=df_raw, order=['Low', 'Average', 'High'], palette='viridis', ax=ax2)
+        ax2.set_title("Phân phối Mức độ chi tiêu")
+        st.pyplot(fig2)
+
 elif page == "Triển khai mô hình":
     st.title("⚙️ Triển khai mô hình K-Means")
+    
     st.subheader("Nhập thông tin khách hàng mới")
     col1, col2 = st.columns(2)
-
     with col1:
         age_input = st.number_input("Nhập Độ tuổi:", min_value=18, max_value=100, value=30)
-
     with col2:
         spending_input = st.selectbox("Chọn Mức độ chi tiêu:", ["Low", "Average", "High"])
+
     if st.button("Dự đoán Phân khúc", type="primary"):
         score_mapping = {'Low': 1, 'Average': 2, 'High': 3}
-        spending_num = score_mapping[spending_input]   
+        spending_num = score_mapping[spending_input]
+        
         # CHÚ Ý: Sử dụng 'scaler' đã load từ file, KHÔNG tạo scaler mới
         input_data = np.array([[age_input, spending_num]])
         input_scaled = scaler.transform(input_data)
         
         # Lấy ID cụm (0, 1 hoặc 2)
         cluster_id = kmeans.predict(input_scaled)[0]
+
         
         # Ánh xạ ID sang câu văn miêu tả chi tiết
         if cluster_id == 0:
@@ -87,6 +137,7 @@ elif page == "Đánh giá & Hiệu năng":
     X = df_processed[['Age', 'Spending_Score_Num']]
     X_scaled = scaler.transform(X)
     labels = kmeans.labels_
+    
     silhouette_avg = silhouette_score(X_scaled, labels)
     st.metric(label="Chỉ số Silhouette Score", value=f"{silhouette_avg:.4f}")
     

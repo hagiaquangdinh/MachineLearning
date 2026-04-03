@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -164,6 +165,7 @@ elif page == "Triển khai mô hình":
         # st.success(f"Khách hàng thuộc Nhóm: {cluster_id}")
         # Cập nhật lại phần Text miêu tả cho phù hợp với 4 nhóm mới
         
+
         cluster_id = kmeans.predict(input_scaled)[0]
         st.success(f"### Khách hàng này thuộc: Nhóm {cluster_id}")
         
@@ -174,6 +176,9 @@ elif page == "Triển khai mô hình":
             st.write("🎯 **Nhóm 1:** Khách hàng VIP, chi tiêu cao. Xe sang, sự kiện độc quyền.")
         else:
             st.write("🎯 **Nhóm 2:** Khách hàng trung niên, thực dụng. Xe gia đình bền bỉ.")
+
+
+
 
 elif page == "Đánh giá & Hiệu năng":
     st.title("📈 Đánh giá Hiệu năng Mô hình")

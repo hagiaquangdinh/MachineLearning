@@ -48,7 +48,7 @@ def train_and_save_model(data_processed):
 
 # --- HÀM 3: LOAD MODEL TỪ FILE .PKL ---
 @st.cache_resource
-# st.pyplot(fig2)
+@st.pyplot(fig2)
 elif page == "Triển khai mô hình":
     st.title("⚙️ Triển khai mô hình K-Means")
     st.subheader("Nhập thông tin khách hàng mới")

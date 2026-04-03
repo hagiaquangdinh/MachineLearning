@@ -1,14 +1,7 @@
 streamlit
-numpy
 pandas
+numpy
 matplotlib
 seaborn
 scikit-learn
-opencv-python-headless
-pillow
-altair
-mlflow
-streamlit-drawable-canvas
-plotly
-tensorflow
-tensorflow.keras
+joblib

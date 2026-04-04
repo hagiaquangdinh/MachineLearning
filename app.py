@@ -85,8 +85,8 @@ if page == "Giới thiệu & EDA":
     st.subheader("📌 Thông tin đồ án")
     st.markdown("""
     * **Tên đề tài:** Phân loại khách hàng dựa vào mức độ chi tiêu theo độ tuổi để tạo kế hoạch marketing kinh doanh xe ô tô.
-    * **Họ tên SV:** [HÀ GIA QUANG ĐỊNH]
-    * **MSSV:** [21T1020303]
+    * **Họ tên SV:** HÀ GIA QUANG ĐỊNH
+    * **MSSV:** 21T1020303]
     * **Giá trị thực tiễn:** Ứng dụng giúp bộ phận Marketing tự động phân nhóm khách hàng dựa trên đặc điểm nhân khẩu học. Nhờ đó, doanh nghiệp có thể cá nhân hóa chiến dịch quảng cáo, tối ưu chi phí và tăng tỷ lệ chuyển đổi mua hàng thay vì chạy chiến dịch đại trà lãng phí.
     """)
     st.divider()

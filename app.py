@@ -186,7 +186,7 @@ elif page == "Triển khai mô hình":
         persona = cluster_names.get(cluster_id, "Nhóm Khách hàng chung")
         
         st.success(f"### 🎯 Khách hàng này thuộc: {persona}")
-        st.caption(f"*(Thông tin kỹ thuật: Hệ thống phân loại vào Cụm số {cluster_id})*")
+        # st.caption(f"*(Thông tin kỹ thuật: Hệ thống phân loại vào Cụm số {cluster_id})*")
 
 # ==========================================
 # TRANG 3: ĐÁNH GIÁ

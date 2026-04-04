@@ -137,8 +137,8 @@ elif page == "Triển khai mô hình":
         # Bạn có thể đổi tên các nhóm này cho phù hợp với dữ liệu thực tế của mình
         cluster_names = {
             0: "🧑‍🎓 Nhóm Trẻ tuổi / Độc thân (Tiềm năng phân khúc xe cỡ nhỏ, giá rẻ)",
-            1: "👨‍👩‍👧‍👦 Nhóm Gia đình (Ưu tiên xe SUV/MPV 7 chỗ, rộng rãi, an toàn)",
-            2: "💼 Nhóm Doanh nhân / Thu nhập cao (Tiềm năng dòng xe Sedan hạng sang)",
+            1: "👨‍👩‍👧‍👦 Nhóm Gia đình (Ưu tiên xe rộng rãi, an toàn)",
+            2: "💼 Nhóm Doanh nhân / Thu nhập cao (Tiềm năng dòng xe hạng sang)",
             3: "👴 Nhóm Trung niên / Hưu trí (Ưu tiên xe thực dụng, bền bỉ, tiết kiệm)"
         }
         
@@ -151,31 +151,48 @@ elif page == "Triển khai mô hình":
 # ==========================================
 # TRANG 3: ĐÁNH GIÁ
 # ==========================================
+# ==========================================
+# TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG
+# ==========================================
 elif page == "Đánh giá & Hiệu năng":
-    st.title("📈 Đánh giá Hiệu năng Mô hình")
-    
+    st.title("📈 Đánh giá & Hiệu năng (Evaluation)")
+    st.markdown("Chứng minh mô hình hoạt động tốt và đáng tin cậy dựa trên các chỉ số phân cụm.")
+
     X_scaled = scaler.transform(df_processed)
     labels = kmeans.labels_
+
+    # --- YÊU CẦU 1: CÁC CHỈ SỐ ĐO LƯỜNG ---
+    st.subheader("1. Các chỉ số đo lường (Metrics)")
+    from sklearn.metrics import silhouette_score, davies_bouldin_score
     
+    # Tính toán 2 chỉ số quan trọng nhất cho Clustering
     silhouette_avg = silhouette_score(X_scaled, labels)
-    st.metric(label="Chỉ số Silhouette Score", value=f"{silhouette_avg:.4f}")
+    db_score = davies_bouldin_score(X_scaled, labels)
+
+    col1, col2 = st.columns(2)
+    col1.metric(label="Chỉ số Silhouette (Càng gần 1 càng tốt)", value=f"{silhouette_avg:.4f}")
+    col2.metric(label="Chỉ số Davies-Bouldin (Càng nhỏ càng tốt)", value=f"{db_score:.4f}")
+    st.caption("*Lưu ý: Vì đây là bài toán Phân cụm (Học không giám sát), ta sử dụng Silhouette và Davies-Bouldin thay cho Accuracy/F1-score.*")
+
+    # --- YÊU CẦU 2: BIỂU ĐỒ KỸ THUẬT ---
+    st.subheader("2. Biểu đồ kỹ thuật")
+    st.markdown("Trực quan hóa mức độ phân tách của các cụm trong không gian (Hiển thị 2 chiều đặc trưng: Tuổi và Chi tiêu).")
     
-    st.subheader("Mối liên hệ giữa Nhóm dự đoán và Mức chi tiêu")
-    
-    df_plot = df_raw.copy()
-    
-    # Thay thế ID nhóm trong biểu đồ bằng tên nhóm luôn cho đồng bộ
-    cluster_short_names = {
-        0: "Nhóm Trẻ tuổi",
-        1: "Nhóm Gia đình",
-        2: "Nhóm Doanh nhân",
-        3: "Nhóm Trung niên"
-    }
-    df_plot['Cluster_Name'] = [cluster_short_names[label] for label in labels]
-    
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.countplot(data=df_plot, y='Cluster_Name', hue='Spending_Score', palette='viridis', ax=ax)
-    plt.title("Phân phối Mức chi tiêu theo từng Chân dung Khách hàng")
-    plt.ylabel("Chân dung Khách hàng")
-    plt.xlabel("Số lượng Khách hàng")
+    df_plot = df_raw.dropna(subset=['Age', 'Spending_Score', 'Family_Size', 'Ever_Married', 'Profession', 'Work_Experience', 'Graduated']).copy()
+    df_plot['Cluster'] = labels
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    sns.scatterplot(x='Age', y='Spending_Score', hue='Cluster', palette='viridis', data=df_plot, ax=ax)
     st.pyplot(fig)
+
+    # --- YÊU CẦU 3: PHÂN TÍCH SAI SỐ ---
+    st.subheader("3. Phân tích sai số & Hướng cải thiện")
+    st.info("""
+    **Nhận định về vùng dữ liệu khó phân tách (Overlap):**
+    * **Đặc điểm thuật toán:** Thuật toán K-Means không có khái niệm "đoán sai nhãn", nhưng điểm yếu của nó là thường ép dữ liệu thành các cụm hình cầu.
+    * **Trường hợp dễ phân nhóm chưa tối ưu:** Dựa vào biểu đồ, ta thấy các cụm có sự chồng lấn nhất định. Khách hàng nằm ở vùng ranh giới (ví dụ: tuổi trung niên nhưng mức chi tiêu đan xen giữa Low và Average) rất dễ bị gán vào cụm lân cận.
+    * **Hướng cải thiện (Future Works):**
+      1. **Thay đổi thuật toán:** Thử nghiệm DBSCAN hoặc Hierarchical Clustering để gom cụm theo mật độ dữ liệu thay vì khoảng cách, giúp bắt được các hình dạng dữ liệu phức tạp.
+      2. **Feature Engineering (Trích xuất đặc trưng):** Tạo thêm các biến số mới (Ví dụ: Tỷ lệ Số năm kinh nghiệm / Tuổi) để tăng khoảng cách giữa các điểm ảnh hưởng.
+      3. **Bổ sung dữ liệu:** Thu thập thêm dữ liệu về Thu nhập thực tế (Income) sẽ giúp phân khúc tách bạch hơn rất nhiều so với việc chỉ dùng điểm Spending Score.
+    """)

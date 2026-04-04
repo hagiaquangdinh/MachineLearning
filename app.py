@@ -79,19 +79,59 @@ page = st.sidebar.radio("Cấu trúc ứng dụng",
 # TRANG 1: EDA
 # ==========================================
 if page == "Giới thiệu & EDA":
-    st.title("📊 Khám phá dữ liệu (EDA)")
-    
+    st.title("📊 Giới thiệu & Khám phá dữ liệu (EDA)")
+
+    # --- YÊU CẦU 1: THÔNG TIN BẮT BUỘC ---
+    st.subheader("📌 Thông tin đồ án")
+    st.markdown("""
+    * **Tên đề tài:** Phân loại khách hàng dựa vào mức độ chi tiêu theo độ tuổi để tạo kế hoạch marketing kinh doanh xe ô tô.
+    * **Họ tên SV:** [HÀ GIA QUANG ĐỊNH]
+    * **MSSV:** [21T1020303]
+    * **Giá trị thực tiễn:** Ứng dụng giúp bộ phận Marketing tự động phân nhóm khách hàng dựa trên đặc điểm nhân khẩu học. Nhờ đó, doanh nghiệp có thể cá nhân hóa chiến dịch quảng cáo, tối ưu chi phí và tăng tỷ lệ chuyển đổi mua hàng thay vì chạy chiến dịch đại trà lãng phí.
+    """)
+    st.divider()
+
     if st.button("🔄 Cập nhật và Huấn luyện lại Model"):
         train_and_save_model(df_processed)
         st.cache_resource.clear()
         st.rerun()
 
-    st.markdown("**Mô hình K-Means (4 Nhóm):** Phân nhóm khách hàng chỉ dựa trên đặc điểm nhân khẩu học.")
-    st.divider()
-    
-    st.subheader("1. Một phần dữ liệu thô")
+    # --- YÊU CẦU 2: NỘI DUNG KỸ THUẬT ---
+    st.subheader("1. Dữ liệu thô (Raw Data)")
+    st.markdown("Hiển thị 10 dòng đầu tiên để có cái nhìn tổng quan về cấu trúc các đặc trưng của khách hàng.")
     st.dataframe(df_raw.head(10))
 
+    st.subheader("2. Biểu đồ phân tích (Data Visualization)")
+    st.markdown("Phân tích phân phối của một số đặc trưng cốt lõi trong bộ dữ liệu.")
+    
+    # Tạo 2 cột để chứa 2 biểu đồ
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("**Biểu đồ phân phối Độ tuổi (Age)**")
+        fig1, ax1 = plt.subplots(figsize=(6, 4))
+        sns.histplot(df_raw['Age'], bins=20, kde=True, color='skyblue', ax=ax1)
+        ax1.set_xlabel('Tuổi')
+        ax1.set_ylabel('Số lượng khách hàng')
+        st.pyplot(fig1)
+
+    with col2:
+        st.markdown("**Thống kê Nghề nghiệp (Profession)**")
+        fig2, ax2 = plt.subplots(figsize=(6, 4))
+        # Sắp xếp từ cao xuống thấp để biểu đồ đẹp hơn
+        sns.countplot(y='Profession', data=df_raw, order=df_raw['Profession'].value_counts().index, palette='pastel', ax=ax2)
+        ax2.set_xlabel('Số lượng khách hàng')
+        ax2.set_ylabel('Nghề nghiệp')
+        st.pyplot(fig2)
+
+    # --- YÊU CẦU 3: GIẢI THÍCH VÀ NHẬN XÉT ---
+    st.subheader("3. Nhận xét và Giải thích dữ liệu")
+    st.info("""
+    **🔍 Đánh giá nhanh về đặc trưng tập dữ liệu:**
+    * **Sự phân bố độ tuổi (Độ lệch dữ liệu):** Nhìn vào biểu đồ Histogram, ta thấy phân phối độ tuổi hơi lệch phải (Right-skewed). Khách hàng chủ yếu tập trung đông đúc ở nhóm thanh niên và trung niên (từ 20 đến 45 tuổi). Số lượng khách hàng cao tuổi (trên 60) giảm dần và chiếm tỷ trọng nhỏ. 
+    * **Sự mất cân bằng biến phân loại:** Ở biểu đồ Nghề nghiệp, nhóm *Artist (Nghệ sĩ)* và *Healthcare (Y tế)* chiếm số lượng áp đảo so với các nhóm như *Homemaker (Nội trợ)*. Sự chênh lệch này là phản ánh đúng thực tế, nhưng nó sẽ khiến thuật toán K-Means nhạy cảm hơn với các nhóm đông người.
+    * **Đặc trưng quan trọng:** Trong số 7 biến được sử dụng, các biến dạng số liên tục có dải giá trị rộng như *Độ tuổi (Age)* và *Số năm kinh nghiệm (Work_Experience)* có khả năng cao sẽ đóng góp trọng số lớn vào việc phân chia ranh giới giữa các cụm khách hàng.
+    """)
 # ==========================================
 # TRANG 2: DỰ ĐOÁN
 # ==========================================
@@ -172,7 +212,7 @@ elif page == "Đánh giá & Hiệu năng":
     col1, col2 = st.columns(2)
     col1.metric(label="Chỉ số Silhouette (Càng gần 1 càng tốt)", value=f"{silhouette_avg:.4f}")
     col2.metric(label="Chỉ số Davies-Bouldin (Càng nhỏ càng tốt)", value=f"{db_score:.4f}")
-    st.caption("*Lưu ý: Vì đây là bài toán Phân cụm (Học không giám sát), ta sử dụng Silhouette và Davies-Bouldin thay cho Accuracy/F1-score.*")
+    # st.caption("*Lưu ý: Vì đây là bài toán Phân cụm (Học không giám sát), ta sử dụng Silhouette và Davies-Bouldin thay cho Accuracy/F1-score.*")
 
     # --- YÊU CẦU 2: BIỂU ĐỒ KỸ THUẬT ---
     st.subheader("2. Biểu đồ kỹ thuật")

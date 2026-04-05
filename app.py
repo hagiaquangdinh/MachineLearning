@@ -57,9 +57,8 @@ def train_and_save_model(data_processed):
 def load_models():
     model_path = 'models/model.pkl'
     
-    if not os.path.exists(model_path):
-        _, data_processed = load_data()
-        train_and_save_model(data_processed)
+    _, data_processed = load_data()
+    train_and_save_model(data_processed)
         
     artifacts = joblib.load(model_path)
     return artifacts['scaler'], artifacts['kmeans'], artifacts['features']

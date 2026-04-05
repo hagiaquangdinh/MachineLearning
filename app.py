@@ -158,19 +158,18 @@ elif page == "Triển khai mô hình":
             'Family_Size': family_input,
             'Work_Experience': work_input,
             'Ever_Married_Num': 1 if married_input == "Yes" else 0,
-            'Graduated_Num': 1 if graduated_input == "Yes" else 0,
-            'Profession': profession_input
+            'Graduated_Num': 1 if graduated_input == "Yes" else 0
         }
         
-        input_df = pd.get_dummies(input_dict)
+        input_df = pd.DataFrame([input_dict])
         
         for feature in expected_features:
             if feature.startswith('Profession_'):
                 prof_name = feature.replace('Profession_', '')
                 input_df[feature] = 1 if profession_input == prof_name else 0
                 
-        input_df = input_df[expected_features]  
-              
+        input_df = input_df[expected_features]
+        
         input_scaled = scaler.transform(input_df)
         cluster_id = kmeans.predict(input_scaled)[0]
         

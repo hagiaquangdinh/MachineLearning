@@ -162,15 +162,15 @@ elif page == "Triển khai mô hình":
             'Profession': profession_input
         }
         
-        input_df = pd.get_dummies(input_df, columns=['Profession'])
+        input_df = pd.get_dummies(input_dict)
         
         for feature in expected_features:
             if feature.startswith('Profession_'):
                 prof_name = feature.replace('Profession_', '')
                 input_df[feature] = 1 if profession_input == prof_name else 0
                 
-        input_df = input_df.reindex(columns=expected_features, fill_value=0)
-        
+        input_df = input_df[expected_features]  
+              
         input_scaled = scaler.transform(input_df)
         cluster_id = kmeans.predict(input_scaled)[0]
         

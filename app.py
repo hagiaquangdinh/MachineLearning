@@ -36,7 +36,7 @@ def load_data():
 
 # --- HÀM 2: HUẤN LUYỆN VÀ LƯU MODEL ---
 def train_and_save_model(data_processed):
-    st.info("🔄 Đang huấn luyện mô hình dựa trên Nhân khẩu học...")
+    # st.info("🔄 Đang huấn luyện mô hình dựa trên Nhân khẩu học...")
     
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(data_processed)
@@ -50,7 +50,7 @@ def train_and_save_model(data_processed):
         'features': data_processed.columns.tolist() 
     }
     joblib.dump(model_artifacts, 'models/model.pkl')
-    st.success("✅ Đã lưu mô hình mới vào models/model.pkl!")
+    # st.success("✅ Đã lưu mô hình mới vào models/model.pkl!")
 
 # --- HÀM 3: LOAD MODEL ---
 @st.cache_resource
@@ -90,10 +90,10 @@ if page == "Giới thiệu & EDA":
     """)
     st.divider()
 
-    if st.button("🔄 Cập nhật và Huấn luyện lại Model"):
-        train_and_save_model(df_processed)
-        st.cache_resource.clear()
-        st.rerun()
+    # if st.button("🔄 Cập nhật và Huấn luyện lại Model"):
+    #     train_and_save_model(df_processed)
+    #     st.cache_resource.clear()
+    #     st.rerun()
 
     # --- YÊU CẦU 2: NỘI DUNG KỸ THUẬT ---
     st.subheader("1. Dữ liệu thô (Raw Data)")

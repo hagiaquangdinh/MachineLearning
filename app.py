@@ -86,6 +86,7 @@ if page == "Giới thiệu & EDA":
     * **Tên đề tài:** Phân loại khách hàng sử dụng thuật toán K-Means Clustering dựa vào mức độ chi tiêu theo độ tuổi nhằm cải thiện kế hoạch marketing kinh doanh xe ô tô.
     * **Họ tên SV:** HÀ GIA QUANG ĐỊNH
     * **MSSV:** 21T1020303
+    * **Giảng viên Hướng dẫn:** Lê Quang Chiến
     * **Giá trị thực tiễn:** Giải pháp này sẽ giúp bộ phận Marketing chấm dứt việc quảng cáo đại trà lãng phí, từ đó thiết kế các kịch bản tiếp thị cá nhân hóa sâu sắc cho từng nhóm khách hàng. Thông qua đó để gia tăng mạnh mẽ tỷ lệ chuyển đổi và doanh thu cho công ty.
     """)
     st.divider()

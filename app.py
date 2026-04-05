@@ -158,7 +158,7 @@ elif page == "Triển khai mô hình":
             'Family_Size': family_input,
             'Work_Experience': work_input,
             'Ever_Married_Num': 1 if married_input == "Yes" else 0,
-            'Graduated_Num': 1 if graduated_input == "Yes" else 0
+            'Graduated_Num': 1 if graduated_input == "Yes" else 0,
             'Profession': profession_input
         }
         
